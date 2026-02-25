@@ -67,52 +67,56 @@ export function TaskFormModal({ isOpen, onClose, onSubmit, initialData, isLoadin
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+                className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity"
                 onClick={onClose}
             />
 
-            <div className="relative z-50 w-full max-w-lg rounded-xl bg-background border p-6 shadow-lg animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-center justify-between mb-5">
-                    <h2 className="text-xl font-semibold tracking-tight">
+            <div className="relative z-50 w-full max-w-lg rounded-3xl bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
                         {initialData ? "Edit Task" : "Create New Task"}
                     </h2>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+                    <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-black/5 dark:hover:bg-white/10">
                         <X className="h-5 w-5" />
                         <span className="sr-only">Close</span>
                     </Button>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Title <span className="text-destructive">*</span></label>
+                        <label className="text-sm font-medium ml-1">Title <span className="text-destructive">*</span></label>
                         <Input
                             {...register("title")}
                             placeholder="e.g. Finish the project report"
-                            className={errors.title ? "border-destructive focus-visible:ring-destructive" : ""}
+                            className={`bg-white/50 dark:bg-black/20 backdrop-blur-sm border-white/20 dark:border-white/10 rounded-xl ${errors.title ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                         />
-                        {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
+                        {errors.title && <p className="text-xs text-red-500 ml-1 mt-1">{errors.title.message}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Description</label>
+                        <label className="text-sm font-medium ml-1">Description</label>
                         <textarea
                             {...register("description")}
                             placeholder="Add details about this task..."
-                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                            className="flex min-h-[100px] w-full rounded-xl border border-white/20 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-sm px-4 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Due Date</label>
-                            <Input type="date" {...register("dueDate")} />
+                            <label className="text-sm font-medium ml-1">Due Date</label>
+                            <Input
+                                type="date"
+                                {...register("dueDate")}
+                                className="bg-white/50 dark:bg-black/20 backdrop-blur-sm border-white/20 dark:border-white/10 rounded-xl"
+                            />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Priority</label>
+                            <label className="text-sm font-medium ml-1">Priority</label>
                             <select
                                 {...register("priority")}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                className="flex h-10 w-full rounded-xl border border-white/20 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-sm px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                             >
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
@@ -123,20 +127,20 @@ export function TaskFormModal({ isOpen, onClose, onSubmit, initialData, isLoadin
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Category <span className="text-destructive">*</span></label>
+                            <label className="text-sm font-medium ml-1">Category <span className="text-destructive">*</span></label>
                             <Input
                                 {...register("category")}
                                 placeholder="e.g. Work, Personal"
-                                className={errors.category ? "border-destructive focus-visible:ring-destructive" : ""}
+                                className={`bg-white/50 dark:bg-black/20 backdrop-blur-sm border-white/20 dark:border-white/10 rounded-xl ${errors.category ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                             />
-                            {errors.category && <p className="text-xs text-destructive">{errors.category.message}</p>}
+                            {errors.category && <p className="text-xs text-red-500 ml-1 mt-1">{errors.category.message}</p>}
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Status</label>
+                            <label className="text-sm font-medium ml-1">Status</label>
                             <select
                                 {...register("status")}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                className="flex h-10 w-full rounded-xl border border-white/20 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-sm px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                             >
                                 <option value="PENDING">Pending</option>
                                 <option value="COMPLETED">Completed</option>
@@ -144,11 +148,11 @@ export function TaskFormModal({ isOpen, onClose, onSubmit, initialData, isLoadin
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 pt-4 border-t mt-6">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+                    <div className="flex items-center justify-end gap-3 pt-6 border-t border-black/10 dark:border-white/10 mt-6">
+                        <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading} className="rounded-xl hover:bg-black/5 dark:hover:bg-white/10">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button type="submit" disabled={isLoading} className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md shadow-indigo-500/25 border-0">
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {initialData ? "Save Changes" : "Create Task"}
                         </Button>

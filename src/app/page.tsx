@@ -10,6 +10,7 @@ import { TaskFormModal, TaskFormData } from "@/components/TaskFormModal";
 import { Button } from "@/components/ui/Button";
 import { Plus, Trash2, ListTodo, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface TaskItem {
   id: string;
@@ -27,6 +28,7 @@ export default function Home() {
   const [stats, setStats] = useState({ total: 0, completed: 0, pending: 0 });
   const [categories, setCategories] = useState<string[]>([]);
   const [totalItems, setTotalItems] = useState(0);
+  const [user, setUser] = useState<{ name: string, email: string } | null>(null);
 
   // State for filtering/pagination
   const [search, setSearch] = useState("");
@@ -72,9 +74,19 @@ export default function Home() {
         sort: sortBy
       });
 
-      const res = await fetch(`/api/tasks?${query.toString()}`);
+      const [res, userRes] = await Promise.all([
+        fetch(`/api/tasks?${query.toString()}`),
+        fetch('/api/auth/me')
+      ]);
+
       if (!res.ok) throw new Error("Failed to fetch");
+
       const data = await res.json();
+
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        setUser(userData.user);
+      }
 
       setTasks(data.tasks);
       setTotalItems(data.total);
@@ -202,15 +214,38 @@ export default function Home() {
     setIsModalOpen(true);
   };
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-pink-500/20 dark:from-indigo-950/50 dark:via-purple-900/20 dark:to-pink-950/30 selection:bg-indigo-500/30">
+      <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none z-50"></div>
+
+      <Navbar user={user} />
+
+      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 relative">
+        {/* Decorative background blobs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+        <div className="absolute top-40 right-1/4 w-96 h-96 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"
+        >
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-1 text-sm">Manage your tasks and boost your productivity.</p>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+              Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
+            </h1>
+            <p className="text-muted-foreground mt-2 text-base">Let&apos;s map out your day and conquer those goals.</p>
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -225,11 +260,16 @@ export default function Home() {
               New Task
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         <TaskStats {...stats} />
 
-        <div className="bg-card border rounded-xl shadow-sm mb-8 overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-xl mb-8 overflow-hidden"
+        >
           <FilterBar
             search={search} setSearch={setSearch}
             statusFilter={statusFilter} setStatusFilter={setStatusFilter}
@@ -239,39 +279,55 @@ export default function Home() {
             categories={categories}
           />
 
-          <div className="p-4 pt-0">
+          <div className="p-5 pt-0">
             {isLoading && tasks.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <p>Loading your tasks...</p>
+              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <Loader2 className="h-10 w-10 animate-spin text-indigo-500 mb-4" />
+                <p className="animate-pulse">Loading your universe...</p>
               </div>
             ) : tasks.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {tasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onToggle={handleToggleStatus}
-                    onEdit={openEditModal}
-                    onDelete={handleDelete}
-                    selected={selectedTasks.has(task.id)}
-                    onSelect={toggleSelectTask}
-                  />
-                ))}
-              </div>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+              >
+                <AnimatePresence mode="popLayout">
+                  {tasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onToggle={handleToggleStatus}
+                      onEdit={openEditModal}
+                      onDelete={handleDelete}
+                      selected={selectedTasks.has(task.id)}
+                      onSelect={toggleSelectTask}
+                    />
+                  ))}
+                </AnimatePresence>
+              </motion.div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in">
-                <div className="bg-primary/5 p-4 rounded-full mb-4">
-                  <ListTodo className="h-10 w-10 text-primary opacity-80" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center py-20 text-center"
+              >
+                <div className="bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 p-5 rounded-full mb-5">
+                  <ListTodo className="h-12 w-12 text-indigo-500 opacity-80" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">No tasks found</h3>
-                <p className="text-muted-foreground max-w-sm mb-6">
+                <h3 className="text-xl font-bold tracking-tight mb-2">No tasks found</h3>
+                <p className="text-muted-foreground max-w-sm mb-8">
                   {search || statusFilter !== "ALL" || categoryFilter !== "ALL"
-                    ? "Try adjusting your filters or search terms."
-                    : "You don't have any tasks yet. Create one to get started!"}
+                    ? "Try adjusting your filters or search terms to find what you're looking for."
+                    : "You don&apos;t have any tasks yet. Create one to get started on your journey!"}
                 </p>
-                <Button onClick={openCreateModal} variant="outline">Create your first task</Button>
-              </div>
+                <Button
+                  onClick={openCreateModal}
+                  className="bg-zinc-900 border border-zinc-200 shadow-sm text-zinc-50 hover:bg-zinc-900/90 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                >
+                  Create your first task
+                </Button>
+              </motion.div>
             )}
 
             <Pagination
@@ -281,7 +337,7 @@ export default function Home() {
               onPageChange={setPage}
             />
           </div>
-        </div>
+        </motion.div>
       </main>
 
       <TaskFormModal

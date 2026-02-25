@@ -27,7 +27,7 @@ export function FilterBar({
 }: FilterBarProps) {
 
     return (
-        <div className="flex flex-col md:flex-row gap-4 mb-6 p-4 bg-muted/30 border rounded-xl">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 p-5 bg-white/40 dark:bg-black/30 border-b border-white/20 dark:border-white/10 rounded-t-2xl">
             <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -39,7 +39,7 @@ export function FilterBar({
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 bg-background border px-3 rounded-md h-10">
+                <div className="flex items-center gap-2 bg-white/50 dark:bg-black/50 border border-white/20 dark:border-white/10 px-3 rounded-xl h-10 shadow-sm">
                     <Filter className="h-4 w-4 text-muted-foreground" />
                     <select
                         className="bg-transparent text-sm focus:outline-none cursor-pointer"
@@ -53,7 +53,7 @@ export function FilterBar({
                 </div>
 
                 <select
-                    className="h-10 border rounded-md px-3 bg-background text-sm focus:outline-none cursor-pointer"
+                    className="h-10 border border-white/20 dark:border-white/10 rounded-xl px-3 bg-white/50 dark:bg-black/50 text-sm focus:outline-none cursor-pointer shadow-sm"
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value)}
                 >
@@ -64,7 +64,7 @@ export function FilterBar({
                 </select>
 
                 <select
-                    className="h-10 border rounded-md px-3 bg-background text-sm focus:outline-none cursor-pointer"
+                    className="h-10 border border-white/20 dark:border-white/10 rounded-xl px-3 bg-white/50 dark:bg-black/50 text-sm focus:outline-none cursor-pointer shadow-sm"
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
                 >
@@ -75,7 +75,7 @@ export function FilterBar({
                 </select>
 
                 <select
-                    className="h-10 border rounded-md px-3 bg-background text-sm focus:outline-none font-medium cursor-pointer"
+                    className="h-10 border border-white/20 dark:border-white/10 rounded-xl px-3 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 text-sm focus:outline-none font-medium cursor-pointer shadow-sm"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                 >

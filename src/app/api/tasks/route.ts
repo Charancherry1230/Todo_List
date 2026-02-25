@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { getSession } from "@/lib/auth";
 
 const taskSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -22,9 +23,16 @@ export async function GET(req: NextRequest) {
         const category = searchParams.get("category") || "ALL";
         const sort = searchParams.get("sort") || "dueDate";
 
+        const session = await getSession();
+        if (!session || !session.userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const skip = (page - 1) * limit;
 
-        const where: Record<string, unknown> = {};
+        const where: Record<string, unknown> = {
+            userId: String(session.userId)
+        };
         if (search) where.title = { contains: search };
         // Prisma SQLite doesn't support case insensitive contains easily without `mode: 'insensitive'` which is only postgres, but we'll stick to basic.
         if (status !== "ALL") where.status = status;
@@ -49,14 +57,15 @@ export async function GET(req: NextRequest) {
 
         // get categories
         const allCategories = await prisma.task.findMany({
+            where: { userId: String(session.userId) },
             select: { category: true },
             distinct: ['category'],
         });
 
         // stats
         const totalCount = total;
-        const completedCount = await prisma.task.count({ where: { status: "COMPLETED" } });
-        const pendingCount = await prisma.task.count({ where: { status: "PENDING" } });
+        const completedCount = await prisma.task.count({ where: { userId: String(session.userId), status: "COMPLETED" } });
+        const pendingCount = await prisma.task.count({ where: { userId: String(session.userId), status: "PENDING" } });
 
         return NextResponse.json({
             tasks,
@@ -79,6 +88,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
         }
 
+        const session = await getSession();
+        if (!session || !session.userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const task = await prisma.task.create({
             data: {
                 title: result.data.title,
@@ -87,6 +101,7 @@ export async function POST(req: NextRequest) {
                 priority: result.data.priority, // Is String in SQLite but validated as ENUM
                 category: result.data.category,
                 status: result.data.status || "PENDING",
+                userId: String(session.userId)
             }
         });
 
